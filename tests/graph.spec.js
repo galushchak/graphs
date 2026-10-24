@@ -15,7 +15,7 @@ test('loads the graph workspace with the default function series', async ({ page
   await expect(page.getByRole('img', { name: 'Graph of the entered functions' })).toBeVisible();
   await expect(page.getByRole('img', { name: 'Graph of the entered functions' })).toHaveAttribute(
     'aria-describedby',
-    'graph-description',
+    'graph-description graph-inspector graph-caption',
   );
   await expect(page.locator('#graph-description')).toContainText('y = sin(x)');
   await expect(page.locator('#graph-error')).toBeEmpty();
@@ -71,6 +71,7 @@ test('plots JSON objects using configurable nested X and Y property paths', asyn
   );
   await expect(page.locator('#graph-error')).toContainText('X key "x"');
 
+  await page.locator('#series-options-3 summary').click();
   await xKey.fill('stamp.seconds');
   await expect(page.locator('#graph-error')).toContainText('Y key "y"');
 
@@ -120,11 +121,16 @@ test('validates, applies, and resets the horizontal range', async ({ page }) => 
 });
 
 test('sets a graph type per series and allows renaming', async ({ page }) => {
+  await page.locator('#series-options-1 summary').click();
+  await page.locator('#series-options-2 summary').click();
   const firstFunctionType = page.getByRole('combobox', { name: 'Graph type for function 1' });
   const secondFunctionType = page.getByRole('combobox', { name: 'Graph type for function 2' });
   await expect(secondFunctionType).toHaveValue('line');
 
   await page.getByRole('button', { name: 'Add coordinates' }).click();
+  await page.locator('#series-options-1 summary').click();
+  await page.locator('#series-options-2 summary').click();
+  await page.locator('#series-options-3 summary').click();
   const coordinateType = page.getByRole('combobox', { name: 'Graph type for coordinate set 3' });
   for (const type of ['line', 'spline', 'dots', 'bars']) {
     await firstFunctionType.selectOption(type);
@@ -161,6 +167,7 @@ test('sets a graph type per series and allows renaming', async ({ page }) => {
 });
 
 test('applies composable visual decorators to a series', async ({ page }) => {
+  await page.locator('#series-options-1 summary').click();
   const dashed = page.getByRole('checkbox', { name: 'Dashed line for function 1' });
   const markers = page.getByRole('checkbox', { name: 'Point markers for function 1' });
 
@@ -178,6 +185,7 @@ test('slides the controls menu in and out and closes it with Escape or the backd
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 375, height: 812 });
   const sidebar = page.locator('#functions-sidebar');
   const toggle = page.locator('#sidebar-toggle');
   const backdrop = page.locator('#sidebar-backdrop');

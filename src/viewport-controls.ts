@@ -13,6 +13,11 @@ interface ViewportControls {
   updateGraph: () => void;
   showError: (message: string) => void;
   onDomainChange: (domain: GraphDomain) => void;
+  initialDomain?: GraphDomain;
+}
+
+export interface ViewportControlsController {
+  syncDomain(domain: GraphDomain): void;
 }
 
 export function setupViewportControls({
@@ -25,8 +30,11 @@ export function setupViewportControls({
   updateGraph,
   showError,
   onDomainChange,
-}: ViewportControls): void {
-  let rangeBeforeZoom = { ...defaultDomain };
+  initialDomain = defaultDomain,
+}: ViewportControls): ViewportControlsController {
+  let rangeBeforeZoom = { ...initialDomain };
+  minInput.value = String(initialDomain.min);
+  maxInput.value = String(initialDomain.max);
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -76,5 +84,13 @@ export function setupViewportControls({
     updateGraph();
   });
 
-  plotter.setDomain(defaultDomain);
+  plotter.setDomain(initialDomain);
+  return {
+    syncDomain(domain) {
+      rangeBeforeZoom = { ...domain };
+      minInput.value = String(domain.min);
+      maxInput.value = String(domain.max);
+      resetZoomButton.hidden = true;
+    },
+  };
 }
